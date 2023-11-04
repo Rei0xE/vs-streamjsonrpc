@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Reflection;
 using Microsoft.VisualStudio.Threading;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using StreamJsonRpc.Protocol;
 using StreamJsonRpc.Reflection;
 
@@ -2332,6 +2333,8 @@ public class JsonRpc : IDisposableObservable, IJsonRpcFormatterCallbacks, IJsonR
         return JsonRpcExtensions.PrefetchIfApplicableAsync(result, cancellationToken);
     }
 
+    public event EventHandler<JsonRpcResult> ResponseWithoutIdRecieved;
+
     private void OnJsonRpcDisconnected(JsonRpcDisconnectedEventArgs eventArgs)
     {
         EventHandler<JsonRpcDisconnectedEventArgs>? handlersToInvoke = null;
@@ -2622,10 +2625,15 @@ public class JsonRpc : IDisposableObservable, IJsonRpcFormatterCallbacks, IJsonR
                 }
                 else
                 {
+                    if (rpc is JsonRpcResult response && response.Result is JObject)
+                    {
+                        this.ResponseWithoutIdRecieved?.Invoke(this, response);
+                    }
+
                     // Unexpected "response" to no request we have a record of. Raise disconnected event.
-                    this.OnJsonRpcDisconnected(new JsonRpcDisconnectedEventArgs(
-                        Resources.UnexpectedResponseWithNoMatchingRequest,
-                        DisconnectedReason.RemoteProtocolViolation));
+                    //this.OnJsonRpcDisconnected(new JsonRpcDisconnectedEventArgs(
+                    //    Resources.UnexpectedResponseWithNoMatchingRequest,
+                    //    DisconnectedReason.RemoteProtocolViolation));
                 }
             }
             else
