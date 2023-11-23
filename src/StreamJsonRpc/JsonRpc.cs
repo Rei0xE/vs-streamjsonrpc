@@ -2333,7 +2333,7 @@ public class JsonRpc : IDisposableObservable, IJsonRpcFormatterCallbacks, IJsonR
         return JsonRpcExtensions.PrefetchIfApplicableAsync(result, cancellationToken);
     }
 
-    public event EventHandler<JsonRpcResult> ResponseWithoutIdRecieved;
+    public event EventHandler<String> ResponseWithoutIdRecieved;
 
     private void OnJsonRpcDisconnected(JsonRpcDisconnectedEventArgs eventArgs)
     {
@@ -2627,7 +2627,7 @@ public class JsonRpc : IDisposableObservable, IJsonRpcFormatterCallbacks, IJsonR
                 {
                     if (rpc is JsonRpcResult response && response.Result is JObject)
                     {
-                        this.ResponseWithoutIdRecieved?.Invoke(this, response);
+                        this.ResponseWithoutIdRecieved?.Invoke(this, response.ToString());
                     }
 
                     // Unexpected "response" to no request we have a record of. Raise disconnected event.
