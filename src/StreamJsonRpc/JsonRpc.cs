@@ -2625,9 +2625,9 @@ public class JsonRpc : IDisposableObservable, IJsonRpcFormatterCallbacks, IJsonR
                 }
                 else
                 {
-                    if (rpc is JsonRpcResult response && response.Result is JObject)
+                    if (rpc is JsonRpcResult responseWithoutId && (responseWithoutId.RequestId.IsNull || responseWithoutId.RequestId.IsEmpty) && responseWithoutId.Result is JObject resultWithoutId)
                     {
-                        this.ResponseWithoutIdRecieved?.Invoke(this, response.ToString());
+                        this.ResponseWithoutIdRecieved?.Invoke(this, resultWithoutId?.ToString());
                     }
 
                     // Unexpected "response" to no request we have a record of. Raise disconnected event.
